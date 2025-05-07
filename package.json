@@ -41,5 +41,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@tanstack/react-query": "^5.75.5",
+    "@types/axios": "^0.14.4"
   }
 }
