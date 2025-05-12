@@ -13,7 +13,7 @@ function App() {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/user-api/user/1', {
+                const response = await axios.get('http://localhost:9999/user-api/user/2', {
                     responseType: 'text', // Ensure response is treated as plain text
                 });
                 setUserName(response.data); // Store user name
