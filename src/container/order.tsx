@@ -11,8 +11,12 @@ const OrderForm = () => {
     const [destinationAddress, setDestinationAddress] = useState("");
     const [sourceCoords, setSourceCoords] = useState({ lat: 0, lon: 0 });
     const [destinationCoords, setDestinationCoords] = useState({ lat: 0, lon: 0 });
+    const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+    const [weight, setWeight] = useState("");
+    const [height, setHeight] = useState("");
+    const [width, setWidth] = useState("");
     const [distance, setDistance] = useState<number | null>(null);
-
+    const [price, setPrice] = useState("");
 
     useEffect(() => {
         axios.get<Product[]>("http://localhost:9999/products-api/products") // Replace with your actual API endpoint
@@ -76,6 +80,27 @@ const OrderForm = () => {
             });
     };
 
+    const handleEstimatePrice = (newWidth: string) => {
+        const selectedProduct = products.find(p => p.id === selectedProductId);
+        if (!selectedProduct || !distance || !weight || !height || !newWidth) return;
+
+        const order = {
+            basePrice: selectedProduct.deliveryCharge,
+            km: distance,
+            weight: parseFloat(weight),
+            height: parseFloat(height),
+            width: parseFloat(newWidth)
+        };
+
+        axios.post("http://localhost:8083/orders-api/estimate", order)
+            .then(res => setPrice(res.data))
+            .catch(err => {
+                console.error("Price estimation error:", err);
+                setPrice("Error");
+            });
+    };
+
+
     return (
         <div className="container mt-4">
             <div className="row">
@@ -110,7 +135,7 @@ const OrderForm = () => {
                 <div className="col-md-6 border p-3">
                     <div className="mb-3">
                         <label className="form-label">Item Combo</label>
-                        <select className="form-select">
+                        <select className="form-select" onChange={(e) => setSelectedProductId(parseInt(e.target.value))}>
                             <option value="">Select item</option>
                             {products.map((product) => (
                                 <option key={product.id} value={product.id}>
@@ -122,17 +147,21 @@ const OrderForm = () => {
 
                     <div className="mb-3">
                         <label className="form-label">Weight (kg)</label>
-                        <input type="text" className="form-control" />
+                        <input type="text" className="form-control" value = {weight} onChange={(e) => setWeight(e.target.value)} />
                     </div>
 
                     <div className="row">
                         <div className="col-md-6 mb-3">
                             <label className="form-label">Height (cm)</label>
-                            <input type="text" className="form-control" />
+                            <input type="text" className="form-control" value = {height} onChange={(e) => setHeight(e.target.value)}/>
                         </div>
                         <div className="col-md-6 mb-3">
                             <label className="form-label">Width (cm)</label>
-                            <input type="text" className="form-control" />
+                            <input type="text" className="form-control" value = {width}  onChange={(e) => {
+                                const newWidth = e.target.value;
+                                setWidth(newWidth);
+                                handleEstimatePrice(newWidth);
+                            }} />
                         </div>
                     </div>
                 </div>
@@ -147,7 +176,7 @@ const OrderForm = () => {
                     </div>
                     <div className="col-md-6">
                         <label className="form-label">Total Price</label>
-                        <input type="text" className="form-control" readOnly />
+                        <input type="text" className="form-control" readOnly value={price}/>
                     </div>
                 </div>
 
