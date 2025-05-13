@@ -17,6 +17,9 @@ const OrderForm = () => {
     const [width, setWidth] = useState("");
     const [distance, setDistance] = useState<number | null>(null);
     const [price, setPrice] = useState("");
+    const [receiverName, setReceiverName] = useState("");
+    const [receiverContact, setReceiverContact] = useState("");
+
 
     useEffect(() => {
         axios.get<Product[]>("http://localhost:9999/products-api/products") // Replace with your actual API endpoint
@@ -100,6 +103,39 @@ const OrderForm = () => {
             });
     };
 
+    const handlePlaceOrder = () => {
+        const selectedProduct = products.find(p => p.id === selectedProductId);
+        if (!selectedProduct || !distance || !price) {
+            alert("Please fill all required fields before placing the order.");
+            return;
+        }
+
+        const orderData = {
+            receiverName,
+            receiverContact,
+            senderName: "John Smith",           // You can add sender input fields or fetch from session
+            senderContact: "1234567890",        // You can add sender input fields or fetch from session
+            senderEmail: "john@example.com",    // You can add sender input fields or fetch from session
+            distance,
+            price: parseFloat(price),
+            itemCode: selectedProduct.id || selectedProduct.name, // adjust as per your model
+            height: parseFloat(height),
+            weight: parseFloat(weight),
+            sourcePostcode,
+            destinationPostcode
+        };
+
+        axios.post("http://localhost:8083/orders-api/place-order", orderData)
+            .then(() => {
+                alert("Order placed successfully!");
+                // Optionally clear form here
+            })
+            .catch((err) => {
+                console.error("Order creation error:", err);
+                alert("Failed to place order.");
+            });
+    };
+
 
     return (
         <div className="container mt-4">
@@ -109,25 +145,28 @@ const OrderForm = () => {
                     <div className="mb-3">
                         <label className="form-label">Source Postcode</label>
                         <div className="input-group">
-                            <input type="text" className="form-control" value={sourcePostcode} onChange={(e) => setSourcePostcode(e.target.value)}/>
+                            <input type="text" className="form-control" value={sourcePostcode}
+                                   onChange={(e) => setSourcePostcode(e.target.value)}/>
                             <button className="btn btn-outline-primary" onClick={handleFindSourceAddress}>Find</button>
                         </div>
                     </div>
                     <div className="mb-3">
                         <label className="form-label">Address Full</label>
-                        <input type="text" className="form-control" readOnly value={sourceAddress} />
+                        <input type="text" className="form-control" readOnly value={sourceAddress}/>
                     </div>
 
                     <div className="mb-3">
                         <label className="form-label">Destination Postcode</label>
                         <div className="input-group">
-                            <input type="text" className="form-control" value={destinationPostcode} onChange={(e) => setDestinationPostcode(e.target.value)}/>
-                            <button className="btn btn-outline-primary" onClick={handleFindDestinationAddress}>Find</button>
+                            <input type="text" className="form-control" value={destinationPostcode}
+                                   onChange={(e) => setDestinationPostcode(e.target.value)}/>
+                            <button className="btn btn-outline-primary" onClick={handleFindDestinationAddress}>Find
+                            </button>
                         </div>
                     </div>
                     <div className="mb-3">
                         <label className="form-label">Address Full</label>
-                        <input type="text" className="form-control" readOnly value={destinationAddress} />
+                        <input type="text" className="form-control" readOnly value={destinationAddress}/>
                     </div>
                 </div>
 
@@ -135,7 +174,8 @@ const OrderForm = () => {
                 <div className="col-md-6 border p-3">
                     <div className="mb-3">
                         <label className="form-label">Item Combo</label>
-                        <select className="form-select" onChange={(e) => setSelectedProductId(parseInt(e.target.value))}>
+                        <select className="form-select"
+                                onChange={(e) => setSelectedProductId(parseInt(e.target.value))}>
                             <option value="">Select item</option>
                             {products.map((product) => (
                                 <option key={product.id} value={product.id}>
@@ -147,21 +187,23 @@ const OrderForm = () => {
 
                     <div className="mb-3">
                         <label className="form-label">Weight (kg)</label>
-                        <input type="text" className="form-control" value = {weight} onChange={(e) => setWeight(e.target.value)} />
+                        <input type="text" className="form-control" value={weight}
+                               onChange={(e) => setWeight(e.target.value)}/>
                     </div>
 
                     <div className="row">
                         <div className="col-md-6 mb-3">
                             <label className="form-label">Height (cm)</label>
-                            <input type="text" className="form-control" value = {height} onChange={(e) => setHeight(e.target.value)}/>
+                            <input type="text" className="form-control" value={height}
+                                   onChange={(e) => setHeight(e.target.value)}/>
                         </div>
                         <div className="col-md-6 mb-3">
                             <label className="form-label">Width (cm)</label>
-                            <input type="text" className="form-control" value = {width}  onChange={(e) => {
+                            <input type="text" className="form-control" value={width} onChange={(e) => {
                                 const newWidth = e.target.value;
                                 setWidth(newWidth);
                                 handleEstimatePrice(newWidth);
-                            }} />
+                            }}/>
                         </div>
                     </div>
                 </div>
@@ -172,18 +214,43 @@ const OrderForm = () => {
                 <div className="row mb-3">
                     <div className="col-md-6">
                         <label className="form-label">Distance (km)</label>
-                        <input type="text" className="form-control" readOnly value={distance !== null ? distance + ' km' : ''}/>
+                        <input type="text" className="form-control" readOnly
+                               value={distance !== null ? distance + ' km' : ''}/>
                     </div>
                     <div className="col-md-6">
                         <label className="form-label">Total Price</label>
                         <input type="text" className="form-control" readOnly value={price}/>
                     </div>
                 </div>
+            </div>
+            <div className="mt-4">
+                <div className="row mb-3">
+                    <div className="col-md-6">
+                        <label className="form-label">Receiver Name</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={receiverName}
+                            onChange={(e) => setReceiverName(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="col-md-6">
+                        <label className="form-label">Receiver Contact</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={receiverContact}
+                            onChange={(e) => setReceiverContact(e.target.value)}
+                        />
+                    </div>
+                </div>
 
                 <div className="text-center">
-                    <button className="btn btn-success btn-lg w-50">Place Order</button>
+                    <button className="btn btn-success btn-lg w-50" onClick={handlePlaceOrder}>Place Order</button>
                 </div>
             </div>
+
         </div>
     );
 };
