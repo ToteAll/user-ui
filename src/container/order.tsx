@@ -22,7 +22,7 @@ const OrderForm = () => {
 
 
     useEffect(() => {
-        axios.get<Product[]>("http://localhost:9999/products-api/products") // Replace with your actual API endpoint
+        axios.get<Product[]>("/products-api/products") // Replace with your actual API endpoint
             .then((response) => {
                 setProducts(response.data);
             })
@@ -36,7 +36,7 @@ const OrderForm = () => {
 
         axios
             .get<PostcodeResult>(
-                `http://localhost:9999/locations-api/locations/${sourcePostcode}`
+                `/locations-api/locations/${sourcePostcode}`
             )
             .then((response) => {
                 const data = response.data.result;
@@ -55,7 +55,7 @@ const OrderForm = () => {
 
         axios
             .get<PostcodeResult>(
-                `http://localhost:9999/locations-api/locations/${destinationPostcode}`
+                `/locations-api/locations/${destinationPostcode}`
             )
             .then((response) => {
                 const data = response.data.result;
@@ -65,7 +65,7 @@ const OrderForm = () => {
 
                 // Trigger distance calculation here
                 if (sourceCoords.lat && sourceCoords.lon && data.latitude && data.longitude) {
-                    axios.get<number>('http://localhost:9999/locations-api/locations/distance', {
+                    axios.get<number>('/locations-api/locations/distance', {
                         params: {
                             sourceLat: sourceCoords.lat,
                             sourceLon: sourceCoords.lon,
@@ -95,7 +95,7 @@ const OrderForm = () => {
             width: parseFloat(newWidth)
         };
 
-        axios.post("http://localhost:8083/orders-api/estimate", order)
+        axios.post("/orders-api/estimate", order)
             .then(res => setPrice(res.data))
             .catch(err => {
                 console.error("Price estimation error:", err);
@@ -125,7 +125,7 @@ const OrderForm = () => {
             destinationPostcode
         };
 
-        axios.post("http://localhost:8083/orders-api/place-order", orderData)
+        axios.post("/orders-api/place-order", orderData)
             .then(() => {
                 alert("Order placed successfully!");
                 // Optionally clear form here
