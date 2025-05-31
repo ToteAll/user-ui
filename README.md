@@ -44,3 +44,9 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 To learn React, check out the [React documentation](https://reactjs.org/).
+
+## Running on k8s
+kubectl apply -f D:/ToteAll/user-ui/kube.yaml
+
+## port forward
+kubectl port-forward service/user-ui-service 3000:80
